@@ -16,11 +16,12 @@ on:
 jobs:
   android:
     name: APK de Android
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     env:
-      ANDROIDSDK: /usr/local/lib/android/sdk
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      # Hace que autoreconf encuentre las macros de Libtool (libtool.m4),
+      # resolviendo "possibly undefined macro: LT_SYS_SYMBOL_USCORE".
+      ACLOCAL_PATH: /usr/share/aclocal
 
     steps:
       - uses: actions/checkout@v4
@@ -33,29 +34,43 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            python3-pip git zip unzip \
+            python3-pip python3-venv git zip unzip \
             openjdk-17-jdk ccache \
-            autoconf libtool pkg-config \
+            autoconf automake libtool libtool-bin \
+            pkg-config m4 \
             zlib1g-dev libncurses5-dev libffi-dev \
             libjpeg-dev wget
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
+          # Hacer explicitamente visibles las macros de Libtool para autoconf.
+          test -f /usr/share/aclocal/libtool.m4
+          echo "ACLOCAL_PATH=$ACLOCAL_PATH"
+          aclocal --print-ac-dir
 
-      - name: Instalar componentes Android requeridos
-        run: |
-          sdkmanager --install \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;33.0.2"
-          yes | sdkmanager --licenses >/dev/null || true
-          test -x "$ANDROIDSDK/build-tools/33.0.2/aidl"
-          "$ANDROIDSDK/build-tools/33.0.2/aidl" --version
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-      - name: Instalar Buildozer
+      - name: Verificar Java
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade buildozer
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
+
+      - name: Instalar Buildozer, Python-for-Android y Cython
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install "Cython==0.29.36"
+          python -m pip install "sh>=1.10,<2"
+          python -m pip install \
+            "buildozer==1.5.0" \
+            "python-for-android==2024.1.21"
+          cython --version
+
+      - name: Limpiar compilaciones parciales
+        run: |
+          rm -rf .buildozer
+          rm -rf ~/.buildozer/android/platform/build-*
 
       - name: Compilar APK
         run: buildozer -v android debug

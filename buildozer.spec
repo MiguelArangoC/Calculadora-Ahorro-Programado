@@ -61,3 +61,9 @@ log_level = 2
 
 # (int) Numero maximo de intentos al descargar dependencias
 max_retries = 3
+
+# (str) Ruta al Android SDK instalado por el workflow de CI.
+# En la maquina del runner de GitHub Actions, el SDK queda en esta ruta
+# gracias a android-actions/setup-android. Buildozer la usa en lugar de
+# intentar descargar su propio SDK.
+android.sdk_path = /usr/local/lib/android/sdk

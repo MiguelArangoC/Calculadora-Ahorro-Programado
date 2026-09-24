@@ -190,6 +190,25 @@ Contiene la licencia bajo la cual se distribuye el proyecto.
 
 Es el archivo de documentación principal del proyecto. Contiene la descripción de la aplicación, su funcionamiento, estructura, instrucciones de instalación, ejecución y pruebas.
 
+# src/main.py
+
+Punto de entrada para el empaquetado móvil de Android. Importa la misma interfaz gráfica
+Kivy del escritorio, de modo que la app luce y funciona igual en el celular que en el computador.
+
+# buildozer.spec
+
+Configuración de **Buildozer**, la herramienta que empaqueta la app como APK para Android.
+Define el nombre del paquete, la arquitectura (arm64-v8a), la versión y la entrada principal (`src/main.py`).
+
+# build_android.sh
+
+Script que genera el APK de Android con un solo comando (requiere Linux, WSL o macOS, igual que Buildozer).
+
+# .github/workflows/build-android.yml
+
+Flujo de **GitHub Actions** que compila **en la nube** el APK de Android (runner Linux con Buildozer).
+Es la forma recomendada de obtener el APK desde Windows. El artefacto se descarga desde la pestaña **Actions**.
+
 5. # ¿Cómo correr la aplicación?
 
 ## Requisitos previos
@@ -283,6 +302,39 @@ También puedes ejecutar el archivo de pruebas directamente:
 
 ```bash
 python test/test_calculadora.py
+```
+
+### 6. Empaquetar para Android (.apk) — celulares Android
+
+La app de Kivy se convierte en un archivo **.apk** instalable en cualquier celular Android usando **Buildozer**.
+El proyecto ya incluye el archivo `buildozer.spec` con toda la configuración.
+
+> **Nota importante:** Buildozer **no funciona en Windows nativo** (requiere Linux, WSL o macOS).
+> Desde Windows tienes dos opciones: **GitHub Actions** (recomendada, abajo) o WSL con Ubuntu.
+
+#### Opción A: Compilar en la nube con GitHub Actions (recomendada desde Windows)
+
+1. Sube el proyecto a GitHub (ya lo tienes: `https://github.com/MiguelArangoC/Calculadora-Ahorro-Programado`).
+2. En la página del repositorio ve a la pestaña **Actions**.
+3. Selecciona el flujo **"Compilar APK Android"** y pulsa **Run workflow**.
+4. Cuando termine (varios minutos), abre el resumen del job **"APK de Android"** y descarga el artefacto
+   `calculadora-ahorro-android-apk`.
+5. Descomprime y copia el archivo `.apk` a tu celular (o instálalo con `adb install bin/*.apk`).
+
+#### Opción B: Compilar localmente en Linux / WSL / macOS
+
+Requisitos: Python 3.10+, y las herramientas base del sistema (`git`, `zip`, `unzip`, `autoconf`, `libtool`,
+`pkg-config`, `zlib1g-dev`, `openjdk`). La primera compilación descarga Android SDK/NDK, por lo que tarda bastante.
+
+```bash
+# 1. Instalar buildozer
+python3 -m pip install --user buildozer
+
+# 2. Compilar el APK (usa el buildozer.spec del proyecto)
+bash build_android.sh
+
+# 3. El APK queda en la carpeta bin/; se instala en el celular con:
+adb install bin/calculadoraahorro-*.apk
 ```
 
 6. # Casos de prueba en excel

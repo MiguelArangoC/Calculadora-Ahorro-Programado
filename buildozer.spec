@@ -15,13 +15,14 @@ source.dir = .
 # (list) Extensiones de archivos que se incluyen en el APK
 source.include_exts = py,png,jpg,jpeg,kv,atlas
 
-# (list) Patrones de archivos y carpetas incluidos/excluidos del APK
-source.include_patterns = src/**
-source.exclude_dirs = test, docs, build, dist, venv, .git, .vscode, .github
+# (list) Carpetas excluidas del APK.
+# No se modifica el codigo existente de la app: solo se agrego el empaquetado.
+source.exclude_dirs = test, docs, build, dist, venv, .venv, .git, .vscode, .github
 source.exclude_patterns = *.exe, *.spec, *.bat, __pycache__/**
 
-# (str) Punto de entrada principal de la aplicacion
-source.main = src/main.py
+# El punto de entrada es main.py en la raiz (ver main.py).
+# La opcion source.main no es compatible con Python-for-Android 2024.1.21,
+# por eso se deja sin definir.
 
 # (str) Version de la aplicacion
 version = 1.0.0

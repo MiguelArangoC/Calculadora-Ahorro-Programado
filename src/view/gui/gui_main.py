@@ -31,9 +31,18 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
+from kivy.utils import platform
 
-Window.size = (760, 640)
-Window.minimum_width, Window.minimum_height = (620, 480)
+# En Android la ventana ocupa toda la pantalla del dispositivo, por lo que
+# no se fuerza un tamano. En el escritorio (Windows/Linux/macOS) se usa una
+# ventana con tamano fijo y el teclado movil no interfiere con los campos.
+_ES_MOVIL = platform in ("android",)
+if not _ES_MOVIL:
+    Window.size = (760, 640)
+    Window.minimum_width, Window.minimum_height = (620, 480)
+else:
+    Window.softinput_mode = "below_target"
+
 Window.clearcolor = (0.96, 0.96, 0.97, 1)  # fondo claro para buen contraste con texto oscuro
 
 COLOR_ERROR = (0.85, 0.2, 0.2, 1)
